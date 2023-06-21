@@ -1,20 +1,22 @@
 package com.iwor.entity;
 
+import com.iwor.converter.BirthdayConverter;
+import com.iwor.converter.RoleConverter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.time.LocalDate;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Entity
 @Table(name = "users", schema = "public")
 public class User {
@@ -24,6 +26,8 @@ public class User {
     private String firstname;
     private String lastname;
     @Column(name = "birth_date")
-    private LocalDate birthDate;
-    private Integer age;
+    @Convert(converter = BirthdayConverter.class)
+    private Birthday birthDate;
+    @Convert(converter = RoleConverter.class)
+    private Role role;
 }

@@ -1,11 +1,12 @@
 package com.iwor;
 
+import com.iwor.converter.RoleConverter;
+import com.iwor.entity.Birthday;
 import com.iwor.entity.User;
 import com.iwor.util.ConnectionManager;
-import com.iwor.util.LocalDateFormatter;
-import lombok.SneakyThrows;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,8 +17,7 @@ public class JdbcRunner {
 
     private static final String FIND_ALL_SQL = "SELECT * FROM users";
 
-    @SneakyThrows
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
         try (
                 Connection connection = ConnectionManager.open();
                 PreparedStatement statement = connection.prepareStatement(FIND_ALL_SQL);
@@ -36,8 +36,8 @@ public class JdbcRunner {
                 .username(resultSet.getObject("username", String.class))
                 .firstname(resultSet.getObject("firstname" , String.class))
                 .lastname(resultSet.getObject("lastname", String.class))
-                .birthDate(LocalDateFormatter.format(resultSet.getString("birth_date")))
-                .age(resultSet.getObject("age", Integer.class))
+                .birthDate(new Birthday(resultSet.getObject("birth_date", Date.class).toLocalDate()))
+                .role(new RoleConverter().convertToEntityAttribute(resultSet.getString("role")))
                 .build();
     }
 }

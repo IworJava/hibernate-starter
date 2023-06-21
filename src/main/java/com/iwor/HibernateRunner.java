@@ -1,5 +1,8 @@
 package com.iwor;
 
+import com.iwor.converter.BirthdayConverter;
+import com.iwor.entity.Birthday;
+import com.iwor.entity.Role;
 import com.iwor.entity.User;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -24,8 +27,8 @@ public class HibernateRunner {
                     .username("ivan@gmail.com")
                     .firstname("Ivan")
                     .lastname("Ivanov")
-                    .birthDate(LocalDate.of(2000, 1, 19))
-                    .age(23)
+                    .birthDate(new Birthday(LocalDate.of(2000, 1, 19)))
+                    .role(Role.USER)
                     .build();
 
             session.delete(user);
