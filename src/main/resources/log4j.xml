@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration>
+
+  <appender name="console" class="org.apache.log4j.ConsoleAppender">
+    <param name="target" value="System.out"/>
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="conversionPattern" value="[%d{HH:mm:ss,SSS}] %p [%c: %L] %m%n"/>
+    </layout>
+  </appender>
+
+  <appender name="fileAll" class="org.apache.log4j.RollingFileAppender">
+    <param name="file" value="logs/hibernate-starter-all.log"/>
+    <param name="append" value="false"/>
+    <param name="maxFileSize" value="1MB"/>
+    <param name="maxBackupIndex" value="10"/>
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="conversionPattern" value="[%d{yyyy-MM-dd HH:mm:ss,SSS}] %p [%c: %L] %m%n"/>
+    </layout>
+    <filter class="org.apache.log4j.varia.LevelRangeFilter">
+      <param name="levelMin" value="all"/>
+    </filter>
+  </appender>
+
+  <appender name="file" class="org.apache.log4j.RollingFileAppender">
+    <param name="file" value="logs/hibernate-starter-com-iwor.log"/>
+    <param name="append" value="false"/>
+    <param name="maxFileSize" value="1MB"/>
+    <param name="maxBackupIndex" value="10"/>
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="conversionPattern" value="[%d{yyyy-MM-dd HH:mm:ss,SSS}] %p [%c: %L] %m%n"/>
+    </layout>
+    <filter class="org.apache.log4j.varia.LevelRangeFilter">
+      <param name="levelMin" value="all"/>
+    </filter>
+  </appender>
+
+  <logger name="com.iwor" additivity="false">
+    <level value="all"/>
+    <appender-ref ref="file"/>
+  </logger>
+  <root>
+    <level value="warn"/>
+    <appender-ref ref="console"/>
+    <appender-ref ref="fileAll"/>
+  </root>
+
+</log4j:configuration>
