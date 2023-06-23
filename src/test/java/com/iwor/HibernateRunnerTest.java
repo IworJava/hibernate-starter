@@ -21,7 +21,6 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -47,9 +46,9 @@ class HibernateRunnerTest {
     void checkInsertReflectionApi() throws SQLException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         User user = User.builder()
                 .username("ivan@gmail.com")
-                .firstname("Ivan")
-                .lastname("Ivanov")
-                .birthDate(new Birthday(LocalDate.of(2000, 1, 19)))
+//                .firstname("Ivan")
+//                .lastname("Ivanov")
+//                .birthDate(new Birthday(LocalDate.of(2000, 1, 19)))
                 .role(Role.USER)
                 .build();
 
@@ -90,9 +89,9 @@ class HibernateRunnerTest {
     void checkGetReflectionApi() throws SQLException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchFieldException {
         User expectedResult = User.builder()
                 .username("ivan@gmail.com")
-                .firstname("Ivan")
-                .lastname("Ivanov")
-                .birthDate(new Birthday(LocalDate.of(2000, 1, 19)))
+//                .firstname("Ivan")
+//                .lastname("Ivanov")
+//                .birthDate(new Birthday(LocalDate.of(2000, 1, 19)))
                 .role(Role.USER)
                 .build();
         Class<? extends User> clazz = expectedResult.getClass();
