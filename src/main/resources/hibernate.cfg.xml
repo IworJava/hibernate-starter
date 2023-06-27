@@ -16,6 +16,7 @@
     <mapping class="com.iwor.entity.Company"/>
     <mapping class="com.iwor.entity.Profile"/>
     <mapping class="com.iwor.entity.Chat"/>
+    <mapping class="com.iwor.entity.UserChat"/>
     <!-- DB schema will be updated if needed -->
     <!-- <property name="hibernate.hbm2ddl.auto">update</property> -->
   </session-factory>

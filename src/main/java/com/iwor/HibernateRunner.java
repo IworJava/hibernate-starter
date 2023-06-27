@@ -21,7 +21,6 @@ public class HibernateRunner {
 
 //                Profile profile = session.get(Profile.class, 3L);
                 User user = session.get(User.class, 3L);
-                user.getChats().clear();
 
                 transaction.commit();
             }

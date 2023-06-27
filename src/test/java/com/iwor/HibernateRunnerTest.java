@@ -7,6 +7,7 @@ import com.iwor.entity.Chat;
 import com.iwor.entity.Profile;
 import com.iwor.entity.Role;
 import com.iwor.entity.User;
+import com.iwor.entity.UserChat;
 import com.iwor.util.ConnectionManager;
 import com.iwor.util.HibernateUtil;
 import org.hibernate.Session;
@@ -27,6 +28,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -55,12 +57,14 @@ class HibernateRunnerTest {
             Transaction transaction = session.beginTransaction();
 
             User user = session.get(User.class, 3L);
-            Chat chat = Chat.builder()
-                    .name("chat")
+            Chat chat = session.get(Chat.class, 4L);
+            UserChat userChat = UserChat.builder()
+                    .user(user)
+                    .chat(chat)
+                    .createdAt(Instant.now())
+                    .createdBy(user.getUsername())
                     .build();
-            user.addChat(chat);
-
-            session.save(chat);
+            session.save(userChat);
 
             transaction.commit();
         }
