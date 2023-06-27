@@ -4,6 +4,8 @@ import com.iwor.converter.BirthdayConverter;
 import com.iwor.converter.RoleConverter;
 import com.iwor.entity.Birthday;
 import com.iwor.entity.Chat;
+import com.iwor.entity.Company;
+import com.iwor.entity.LocaleInfo;
 import com.iwor.entity.Profile;
 import com.iwor.entity.Role;
 import com.iwor.entity.User;
@@ -49,6 +51,20 @@ class HibernateRunnerTest {
 
     private final RoleConverter roleConverter = new RoleConverter();
     private final BirthdayConverter birthdayConverter = new BirthdayConverter();
+
+    @Test
+    void checkLocaleInfo() {
+        try (SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
+             Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+
+            Company company = session.get(Company.class, 3);
+            company.getLocales().add(LocaleInfo.of("ru", "Описание на русском"));
+            company.getLocales().add(LocaleInfo.of("en", "English description"));
+
+            transaction.commit();
+        }
+    }
 
     @Test
     void checkManyToMany() {

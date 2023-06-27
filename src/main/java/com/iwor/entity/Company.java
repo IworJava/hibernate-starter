@@ -8,15 +8,19 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.PreRemove;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -43,6 +47,11 @@ public class Company {
             CascadeType.REFRESH
     })
     private Set<User> users = new HashSet<>();
+
+    @Builder.Default
+    @ElementCollection
+    @CollectionTable(name = "company_locale")
+    private List<LocaleInfo> locales = new ArrayList<>();
 
     @PreRemove
     private void nullification() {
