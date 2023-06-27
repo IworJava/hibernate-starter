@@ -3,9 +3,15 @@ package com.iwor;
 import com.iwor.converter.BirthdayConverter;
 import com.iwor.converter.RoleConverter;
 import com.iwor.entity.Birthday;
+import com.iwor.entity.Chat;
+import com.iwor.entity.Profile;
 import com.iwor.entity.Role;
 import com.iwor.entity.User;
 import com.iwor.util.ConnectionManager;
+import com.iwor.util.HibernateUtil;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.annotations.Type;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -28,11 +34,11 @@ import java.util.stream.Collectors;
 
 class HibernateRunnerTest {
     private static final String INSERT_SQL = """
-                INSERT INTO %s
-                (%s)
-                VALUES
-                (%s)
-                """;
+            INSERT INTO %s
+            (%s)
+            VALUES
+            (%s)
+            """;
     private static final String GET_BY_ID_SQL = """
             SELECT *
             FROM %s
@@ -41,6 +47,44 @@ class HibernateRunnerTest {
 
     private final RoleConverter roleConverter = new RoleConverter();
     private final BirthdayConverter birthdayConverter = new BirthdayConverter();
+
+    @Test
+    void checkManyToMany() {
+        try (SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
+             Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+
+            User user = session.get(User.class, 3L);
+            Chat chat = Chat.builder()
+                    .name("chat")
+                    .build();
+            user.addChat(chat);
+
+            session.save(chat);
+
+            transaction.commit();
+        }
+    }
+
+    @Test
+    void checkOneToOne() {
+        try (SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
+             Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+
+            Profile profile = Profile.builder()
+                    .street("Arbat, 10")
+                    .language("ru")
+                    .build();
+            User user = User.builder()
+                    .username("test1@gmail.com")
+                    .profile(profile)
+                    .build();
+            session.save(user);
+
+            transaction.commit();
+        }
+    }
 
     @Test
     void checkInsertReflectionApi() throws SQLException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
@@ -138,7 +182,7 @@ class HibernateRunnerTest {
                     .invoke(roleConverter, value);
         }
         if (converterClazz.equals(BirthdayConverter.class)) {
-            return  converterClazz.getDeclaredMethod("convertToDatabaseColumn", Birthday.class)
+            return converterClazz.getDeclaredMethod("convertToDatabaseColumn", Birthday.class)
                     .invoke(birthdayConverter, value);
         }
         return null;
