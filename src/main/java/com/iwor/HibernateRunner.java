@@ -19,8 +19,8 @@ public class HibernateRunner {
             try (Session session = sessionFactory.openSession()) {
                 Transaction transaction = session.beginTransaction();
 
-//                Profile profile = session.get(Profile.class, 3L);
-                User user = session.get(User.class, 3L);
+                Company company = session.get(Company.class, 1);
+                company.getUsers().forEach((k, v) -> System.out.println(v));
 
                 transaction.commit();
             }

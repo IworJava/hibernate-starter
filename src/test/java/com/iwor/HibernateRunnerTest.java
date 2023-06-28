@@ -1,56 +1,79 @@
 package com.iwor;
 
-import com.iwor.converter.BirthdayConverter;
-import com.iwor.converter.RoleConverter;
-import com.iwor.entity.Birthday;
 import com.iwor.entity.Chat;
 import com.iwor.entity.Company;
-import com.iwor.entity.LocaleInfo;
 import com.iwor.entity.Profile;
-import com.iwor.entity.Role;
 import com.iwor.entity.User;
 import com.iwor.entity.UserChat;
-import com.iwor.util.ConnectionManager;
 import com.iwor.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.annotations.Type;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 class HibernateRunnerTest {
-    private static final String INSERT_SQL = """
-            INSERT INTO %s
-            (%s)
-            VALUES
-            (%s)
+    private static final String DROP_ALL_SQL = """
+            DROP TABLE IF EXISTS profile,
+                                 users,
+                                 company_locale,
+                                 company;
             """;
-    private static final String GET_BY_ID_SQL = """
-            SELECT *
-            FROM %s
-            WHERE %s = ?
+    private static final String CREATE_COMPANY_SQL = """
+            CREATE TABLE company (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(64) NOT NULL UNIQUE
+            );
             """;
+    private static final String CREATE_COMPANY_LOCALE_SQL = """
+            CREATE TABLE company_locale (
+                company_id INT NOT NULL REFERENCES company (id),
+                lang CHAR(2) NOT NULL,
+                description VARCHAR(128) NOT NULL,
+                PRIMARY KEY (company_id, lang)
+            );
+            """;
+    private static final String CREATE_PROFILE_SQL = """
+            CREATE TABLE profile (
+                id BIGSERIAL PRIMARY KEY,
+                street VARCHAR(128),
+                language CHAR(2)
+            );
+            """;
+    private static final String CREATE_USERS_SQL = """
+            CREATE TABLE users (
+                id BIGSERIAL PRIMARY KEY,
+                username VARCHAR(128) NOT NULL UNIQUE,
+                firstname VARCHAR(128),
+                lastname VARCHAR(128),
+                birth_date DATE,
+                role VARCHAR(1),
+                info JSONB,
+                company_id INT NULL REFERENCES company (id),
+                profile_id BIGINT UNIQUE REFERENCES profile (id)
+            );
+            """;
+    private static SessionFactory sessionFactory;
+    private Session session;
 
-    private final RoleConverter roleConverter = new RoleConverter();
-    private final BirthdayConverter birthdayConverter = new BirthdayConverter();
+    @Test
+    void checkOrdering() {
+        session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        Company company1 = session.get(Company.class, 1);
+        company1.getUsers().forEach((k, v) -> System.out.println(v));
+
+        Company company3 = session.get(Company.class, 3);
+        company3.getLocales().forEach((k, v) -> System.out.printf("%s: %s%n", k, v));
+
+        session.getTransaction().commit();
+    }
 
     @Test
     void checkLocaleInfo() {
@@ -59,8 +82,8 @@ class HibernateRunnerTest {
             Transaction transaction = session.beginTransaction();
 
             Company company = session.get(Company.class, 3);
-            company.getLocales().add(LocaleInfo.of("ru", "Описание на русском"));
-            company.getLocales().add(LocaleInfo.of("en", "English description"));
+            company.getLocales().put("ru", "Описание на русском");
+            company.getLocales().put("en", "English description");
 
             transaction.commit();
         }
@@ -93,11 +116,11 @@ class HibernateRunnerTest {
             Transaction transaction = session.beginTransaction();
 
             Profile profile = Profile.builder()
-                    .street("Arbat, 10")
+                    .street("prospect Mira, 101")
                     .language("ru")
                     .build();
             User user = User.builder()
-                    .username("test1@gmail.com")
+                    .username("test@gmail.com")
                     .profile(profile)
                     .build();
             session.save(user);
@@ -106,146 +129,50 @@ class HibernateRunnerTest {
         }
     }
 
-    @Test
-    void checkInsertReflectionApi() throws SQLException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-        User user = User.builder()
-                .username("ivan@gmail.com")
-//                .firstname("Ivan")
-//                .lastname("Ivanov")
-//                .birthDate(new Birthday(LocalDate.of(2000, 1, 19)))
-                .role(Role.USER)
-                .build();
+    @BeforeAll
+    static void createSessionFactory() {
+        sessionFactory = HibernateUtil.buildSessionFactory();
+    }
+    @BeforeEach
+    void initDb() {
+        session = sessionFactory.openSession();
+        Transaction transaction = session.beginTransaction();
 
-        String tableName = getTableName(user.getClass());
+        session.createSQLQuery(DROP_ALL_SQL).executeUpdate();
+        session.createSQLQuery(CREATE_COMPANY_SQL).executeUpdate();
+        session.createSQLQuery(CREATE_COMPANY_LOCALE_SQL).executeUpdate();
+        session.createSQLQuery(CREATE_PROFILE_SQL).executeUpdate();
+        session.createSQLQuery(CREATE_USERS_SQL).executeUpdate();
 
-        Field[] declaredFields = user.getClass().getDeclaredFields();
+        Company company1 = Company.builder().name("Apple").build();
+        Company company2 = Company.builder().name("Google").build();
+        Company company3 = Company.builder().name("Amazon").build();
+        session.persist(company1);
+        session.persist(company2);
+        session.persist(company3);
 
-        String columnNames = Arrays.stream(declaredFields)
-                .map(field -> Optional.ofNullable(field.getAnnotation(Column.class))
-                        .map(Column::name)
-                        .orElse(field.getName()).toLowerCase())
-//                .sorted()
-                .collect(Collectors.joining(", "));
+        User user1 = User.builder().username("ivan@gmail.com").company(company1).build();
+        User user2 = User.builder().username("petr@gmail.com").company(company1).build();
+        User user3 = User.builder().username("anna@gmail.com").company(company1).build();
+        session.persist(user1);
+        session.persist(user2);
+        session.persist(user3);
 
-        String values = Arrays.stream(declaredFields)
-                .map(field -> "?")
-                .collect(Collectors.joining(", "));
+        company3.getLocales().put("ru", "Описание на русском");
+        company3.getLocales().put("en", "English description");
 
-        String sqlQuery = INSERT_SQL.formatted(tableName, columnNames, values);
-        System.out.println(sqlQuery);
-//        declaredFields = Arrays.stream(declaredFields)
-//                .sorted(Comparator.comparing(Field::getName))
-//                .toArray(Field[]::new);
-
-        try (Connection connection = ConnectionManager.open();
-             PreparedStatement statement = connection.prepareStatement(sqlQuery)) {
-            for (int i = 0; i < declaredFields.length; i++) {
-                Field field = declaredFields[i];
-                field.setAccessible(true);
-
-                statement.setObject(i + 1, getDBValue(field, user));
-            }
-            statement.execute();
+        transaction.commit();
+    }
+    @AfterEach
+    void closeSession() {
+        if (session != null) {
+            session.close();
         }
     }
-
-    @Test
-    void checkGetReflectionApi() throws SQLException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchFieldException {
-        User expectedResult = User.builder()
-                .username("ivan@gmail.com")
-//                .firstname("Ivan")
-//                .lastname("Ivanov")
-//                .birthDate(new Birthday(LocalDate.of(2000, 1, 19)))
-                .role(Role.USER)
-                .build();
-        Class<? extends User> clazz = expectedResult.getClass();
-        Field[] fields = clazz.getDeclaredFields();
-
-        String idFieldName = null;
-        for (Field field : fields) {
-            if (field.getAnnotation(Id.class) != null) {
-                idFieldName = field.getName();
-            }
+    @AfterAll
+    static void close() {
+        if (sessionFactory != null){
+            sessionFactory.close();
         }
-        String query = GET_BY_ID_SQL.formatted(getTableName(clazz), idFieldName);
-
-        try (Connection connection = ConnectionManager.open();
-             PreparedStatement statement = connection.prepareStatement(query)
-        ) {
-            statement.setString(1, expectedResult.getUsername());
-            ResultSet resultSet = statement.executeQuery();
-
-            if (!resultSet.next()) {
-                throw new NoSuchElementException("No such username");
-            }
-
-            User actualResult = clazz.getConstructor().newInstance();
-
-            for (Field field : fields) {
-                field.setAccessible(true);
-                field.set(actualResult, getEntityFieldValue(resultSet, field));
-            }
-
-            Assertions.assertEquals(expectedResult, actualResult);
-            System.out.println(actualResult);
-        }
-    }
-
-    private Object getDBValue(Field field, Object entity) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        Object value = field.get(entity);
-        if (field.getAnnotation(Convert.class) == null) {
-            return value;
-        }
-        Class converterClazz = field.getAnnotation(Convert.class).converter();
-        if (converterClazz.equals(RoleConverter.class)) {
-            return converterClazz.getDeclaredMethod("convertToDatabaseColumn", Role.class)
-                    .invoke(roleConverter, value);
-        }
-        if (converterClazz.equals(BirthdayConverter.class)) {
-            return converterClazz.getDeclaredMethod("convertToDatabaseColumn", Birthday.class)
-                    .invoke(birthdayConverter, value);
-        }
-        return null;
-    }
-
-    private Object getEntityFieldValue(ResultSet rs, Field field) throws SQLException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        String columnName = getColumnName(field);
-        Object value = rs.getObject(columnName);
-
-        Type typeAnnotation = field.getAnnotation(Type.class);
-        if (typeAnnotation != null) {
-            return null;
-        }
-        Convert convertAnnotation = field.getAnnotation(Convert.class);
-        if (convertAnnotation == null) {
-            return value;
-        }
-        Class converter = convertAnnotation.converter();
-        if (converter.equals(RoleConverter.class)) {
-            return converter.getDeclaredMethod("convertToEntityAttribute", String.class)
-                    .invoke(roleConverter, value);
-        }
-        if (converter.equals(BirthdayConverter.class)) {
-            return converter.getDeclaredMethod("convertToEntityAttribute", Date.class)
-                    .invoke(birthdayConverter, value);
-        }
-        return null;
-    }
-
-    private String getColumnName(Field field) {
-        return Optional.ofNullable(field.getAnnotation(Column.class))
-                .map(Column::name)
-                .orElse(field.getName());
-    }
-
-    private String getTableName(Class<? extends User> clazz) {
-        return Optional.ofNullable(clazz.getAnnotation(Table.class))
-                .map(a -> (
-                        a.schema().isBlank()
-                                ? "public"
-                                : a.schema())
-                        + "." + a.name()
-                )
-                .orElse(clazz.getSimpleName().toLowerCase());
     }
 }
