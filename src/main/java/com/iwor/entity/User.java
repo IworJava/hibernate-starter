@@ -13,6 +13,7 @@ import org.hibernate.annotations.TypeDef;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
+import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -25,6 +26,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,12 +38,13 @@ import java.util.List;
 //@Builder
 @Entity
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
-//@Table(name = "users", schema = "public")
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public abstract class User implements BaseEntity<Long> {
+@Table(name = "users", schema = "public")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "type")
+public class User implements BaseEntity<Long> {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true, length = 128)

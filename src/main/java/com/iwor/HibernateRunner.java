@@ -60,14 +60,6 @@ public class HibernateRunner {
                     .company(company1)
                     .language(Language.PYTHON)
                     .build();
-            Programmer programmer2 = Programmer.builder()
-                    .username("anna@gmail.com")
-                    .personalInfo(personalInfo3)
-                    .role(Role.ADMIN)
-                    .info("{\"id\": 3, \"name\": \"Anna\"}")
-                    .company(company1)
-                    .language(Language.JAVA)
-                    .build();
             Manager manager = Manager.builder()
                     .username("petr@gmail.com")
                     .personalInfo(personalInfo2)
@@ -76,9 +68,17 @@ public class HibernateRunner {
                     .company(company1)
                     .projectName("Mega Project")
                     .build();
-            session.persist(programmer1);
-            session.persist(programmer2);
+            Programmer programmer2 = Programmer.builder()
+                    .username("anna@gmail.com")
+                    .personalInfo(personalInfo3)
+                    .role(Role.ADMIN)
+                    .info("{\"id\": 3, \"name\": \"Anna\"}")
+                    .company(company1)
+                    .language(Language.JAVA)
+                    .build();
+        session.persist(programmer1);
             session.persist(manager);
+            session.persist(programmer2);
 
             company3.getLocales().put("ru", "Описание на русском");
             company3.getLocales().put("en", "English description");

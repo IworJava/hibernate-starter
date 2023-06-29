@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Entity
+@DiscriminatorValue("manager")
 public class Manager extends User {
 
     private String projectName;
