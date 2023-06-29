@@ -1,6 +1,5 @@
 package com.iwor.entity;
 
-import com.iwor.converter.RoleConverter;
 import com.iwor.converter.RoleConverterChar;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import lombok.AllArgsConstructor;
@@ -38,19 +37,16 @@ import java.util.List;
 @Entity
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 @Table(name = "users", schema = "public")
-public class User {
+public class User implements BaseEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    @GeneratedValue(generator = "user_gen", strategy = GenerationType.SEQUENCE)
-//    @SequenceGenerator(name = "user_gen", sequenceName = "users_id_seq", allocationSize = 1)
     private Long id;
 
     @Column(nullable = false, unique = true, length = 128)
     private String username;
 
     @Embedded
-//    @AttributeOverride(name = "birthdate", column = @Column(name = "birth_date"))
     private PersonalInfo personalInfo;
 
     @Column(columnDefinition = "char", length = 1)

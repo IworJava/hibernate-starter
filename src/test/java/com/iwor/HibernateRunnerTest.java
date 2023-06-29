@@ -62,9 +62,9 @@ class HibernateRunnerTest {
             UserChat userChat = UserChat.builder()
                     .user(user)
                     .chat(chat)
-                    .createdAt(Instant.now())
-                    .createdBy(user.getUsername())
                     .build();
+            userChat.setCreatedAt(Instant.now());
+            userChat.setCreatedBy(user.getUsername());
             session.save(userChat);
 
             transaction.commit();

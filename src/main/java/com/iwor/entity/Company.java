@@ -33,7 +33,7 @@ import java.util.TreeMap;
 @ToString(exclude = "users")
 @Builder
 @Entity
-public class Company {
+public class Company implements BaseEntity<Integer> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
