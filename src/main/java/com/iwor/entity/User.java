@@ -3,7 +3,6 @@ package com.iwor.entity;
 import com.iwor.converter.RoleConverterChar;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -20,11 +19,12 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,14 +33,15 @@ import java.util.List;
 @AllArgsConstructor
 @EqualsAndHashCode(of = "username")
 @ToString(exclude = {"company", "profile", "userChats"})
-@Builder
+//@Builder
 @Entity
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
-@Table(name = "users", schema = "public")
-public class User implements BaseEntity<Long> {
+//@Table(name = "users", schema = "public")
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+public abstract class User implements BaseEntity<Long> {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Column(nullable = false, unique = true, length = 128)
@@ -68,7 +69,7 @@ public class User implements BaseEntity<Long> {
     @JoinColumn(name = "profile_id")
     private Profile profile;
 
-    @Builder.Default
+//    @Builder.Default
     @OneToMany(mappedBy = "user")
     private List<UserChat> userChats = new ArrayList<>();
 }

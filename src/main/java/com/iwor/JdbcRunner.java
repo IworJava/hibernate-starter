@@ -3,6 +3,7 @@ package com.iwor;
 import com.iwor.converter.RoleConverter;
 import com.iwor.entity.Birthday;
 import com.iwor.entity.PersonalInfo;
+import com.iwor.entity.Programmer;
 import com.iwor.entity.User;
 import com.iwor.util.ConnectionManager;
 
@@ -38,7 +39,7 @@ public class JdbcRunner {
                 .lastname(resultSet.getObject("lastname", String.class))
                 .birthDate(new Birthday(resultSet.getObject("birth_date", Date.class).toLocalDate()))
                 .build();
-        return User.builder()
+        return Programmer.builder()
                 .username(resultSet.getObject("username", String.class))
                 .personalInfo(personalInfo)
                 .role(new RoleConverter().convertToEntityAttribute(resultSet.getString("role")))

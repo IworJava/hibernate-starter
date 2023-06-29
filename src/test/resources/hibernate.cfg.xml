@@ -18,5 +18,7 @@
     <mapping class="com.iwor.entity.Profile"/>
     <mapping class="com.iwor.entity.Chat"/>
     <mapping class="com.iwor.entity.UserChat"/>
+    <mapping class="com.iwor.entity.Programmer"/>
+    <mapping class="com.iwor.entity.Manager"/>
   </session-factory>
 </hibernate-configuration>

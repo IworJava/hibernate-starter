@@ -2,7 +2,9 @@ package com.iwor;
 
 import com.iwor.entity.Chat;
 import com.iwor.entity.Company;
+import com.iwor.entity.Manager;
 import com.iwor.entity.Profile;
+import com.iwor.entity.Programmer;
 import com.iwor.entity.Role;
 import com.iwor.entity.User;
 import com.iwor.entity.UserChat;
@@ -81,7 +83,7 @@ class HibernateRunnerTest {
                     .street("prospect Mira, 101")
                     .language("ru")
                     .build();
-            User user = User.builder()
+            Programmer user = Programmer.builder()
                     .username("test@gmail.com")
                     .profile(profile)
                     .build();
@@ -110,9 +112,9 @@ class HibernateRunnerTest {
         session.persist(company2);
         session.persist(company3);
 
-        User user1 = User.builder().username("ivan@gmail.com").role(Role.USER).company(company1).build();
-        User user2 = User.builder().username("petr@gmail.com").role(Role.USER).company(company1).build();
-        User user3 = User.builder().username("anna@gmail.com").role(Role.ADMIN).company(company1).build();
+        Programmer user1 = Programmer.builder().username("ivan@gmail.com").role(Role.USER).company(company1).build();
+        Programmer user2 = Programmer.builder().username("anna@gmail.com").role(Role.ADMIN).company(company1).build();
+        Manager user3 = Manager.builder().username("petr@gmail.com").role(Role.USER).company(company1).build();
         session.persist(user1);
         session.persist(user2);
         session.persist(user3);

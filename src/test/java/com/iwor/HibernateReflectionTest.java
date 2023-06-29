@@ -3,6 +3,7 @@ package com.iwor;
 import com.iwor.converter.BirthdayConverter;
 import com.iwor.converter.RoleConverter;
 import com.iwor.entity.Birthday;
+import com.iwor.entity.Programmer;
 import com.iwor.entity.Role;
 import com.iwor.entity.User;
 import com.iwor.util.ConnectionManager;
@@ -44,7 +45,7 @@ public class HibernateReflectionTest {
 
     @Test
     void checkInsertReflectionApi() throws SQLException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-        User user = User.builder()
+        Programmer user = Programmer.builder()
                 .username("ivan@gmail.com")
 //                .firstname("Ivan")
 //                .lastname("Ivanov")
@@ -87,7 +88,7 @@ public class HibernateReflectionTest {
 
     @Test
     void checkGetReflectionApi() throws SQLException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchFieldException {
-        User expectedResult = User.builder()
+        Programmer expectedResult = Programmer.builder()
                 .username("ivan@gmail.com")
 //                .firstname("Ivan")
 //                .lastname("Ivanov")
