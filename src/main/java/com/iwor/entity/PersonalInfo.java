@@ -21,9 +21,13 @@ public class PersonalInfo implements Serializable {
     @Serial
     private static final long serialVersionUID = -8447826393713500223L;
 
+    @Column(length = 128)
     private String firstname;
+
+    @Column(length = 128)
     private String lastname;
-    @Column(name = "birth_date")
+
+    @Column(name = "birth_date", columnDefinition = "date")
     @Convert(converter = BirthdayConverter.class)
     private Birthday birthDate;
 }

@@ -20,6 +20,7 @@ import javax.persistence.MapKey;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.PreRemove;
+import javax.persistence.UniqueConstraint;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,9 +55,9 @@ public class Company {
 
     @Builder.Default
     @ElementCollection
-    @CollectionTable(name = "company_locale")
+    @CollectionTable(name = "company_locale", uniqueConstraints = @UniqueConstraint(columnNames = {"lang", "company_id"}))
     @Column(name = "description")
-    @MapKeyColumn(name = "lang")
+    @MapKeyColumn(name = "lang", columnDefinition = "bpchar", length = 2)
     private Map<String, String> locales = new HashMap<>();
 
     @PreRemove

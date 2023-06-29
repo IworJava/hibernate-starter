@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -23,5 +24,6 @@ public class Profile {
 
     private String street;
 
+    @Column(columnDefinition = "bpchar", length = 2)
     private String language;
 }

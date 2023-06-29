@@ -1,6 +1,7 @@
 package com.iwor.entity;
 
 import com.iwor.converter.RoleConverter;
+import com.iwor.converter.RoleConverterChar;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -45,16 +46,18 @@ public class User {
 //    @SequenceGenerator(name = "user_gen", sequenceName = "users_id_seq", allocationSize = 1)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 128)
     private String username;
 
     @Embedded
 //    @AttributeOverride(name = "birthdate", column = @Column(name = "birth_date"))
     private PersonalInfo personalInfo;
 
-    @Convert(converter = RoleConverter.class)
+    @Column(columnDefinition = "char", length = 1)
+    @Convert(converter = RoleConverterChar.class)
     private Role role;
 
+    @Column(columnDefinition = "jsonb")
     @Type(type = "jsonb")
     private String info;
 
