@@ -20,5 +20,6 @@
     <mapping class="com.iwor.entity.UserChat"/>
     <mapping class="com.iwor.entity.Programmer"/>
     <mapping class="com.iwor.entity.Manager"/>
+    <mapping class="com.iwor.entity.Payment"/>
   </session-factory>
 </hibernate-configuration>

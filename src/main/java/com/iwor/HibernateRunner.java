@@ -24,10 +24,9 @@ public class HibernateRunner {
                 Transaction transaction = session.beginTransaction();
 
                 dbInit(session);
-                session.flush();
                 session.clear();
 
-                Company company = session.get(Company.class, 1);
+                var company = session.get(Company.class, 1);
                 company.getUsers().forEach((k, v) -> System.out.println(v));
 
                 transaction.commit();
@@ -36,18 +35,16 @@ public class HibernateRunner {
     }
 
     private static void dbInit(Session session) {
-//        try (Session session = sessionFactory.openSession()) {
-//            session.beginTransaction();
+//        Transaction transaction = session.beginTransaction();
+//        Arrays.stream(SqlQueries.values()).forEachOrdered(sql ->
+//                session.createSQLQuery(sql.getQuery()).executeUpdate());
 
-//            Arrays.stream(SqlQueries.values()).forEachOrdered(sql ->
-//                    session.createSQLQuery(sql.getQuery()).executeUpdate());
-
-            Company company1 = Company.builder().name("Apple").build();
-            Company company2 = Company.builder().name("Google").build();
-            Company company3 = Company.builder().name("Amazon").build();
-            session.persist(company1);
-            session.persist(company2);
-            session.persist(company3);
+        Company company1 = Company.builder().name("Apple").build();
+        Company company2 = Company.builder().name("Google").build();
+        Company company3 = Company.builder().name("Amazon").build();
+        session.persist(company1);
+        session.persist(company2);
+        session.persist(company3);
 
             PersonalInfo personalInfo1 = PersonalInfo.builder().firstname("Ivan").lastname("Ivanov").birthDate(new Birthday(LocalDate.of(2000, 10, 20))).build();
             PersonalInfo personalInfo2 = PersonalInfo.builder().firstname("Petr").lastname("Petrov").birthDate(new Birthday(LocalDate.of(1990, 9, 19))).build();
@@ -77,13 +74,12 @@ public class HibernateRunner {
                     .language(Language.JAVA)
                     .build();
         session.persist(programmer1);
-            session.persist(manager);
-            session.persist(programmer2);
+        session.persist(manager);
+        session.persist(programmer2);
 
-            company3.getLocales().put("ru", "Описание на русском");
-            company3.getLocales().put("en", "English description");
+        company3.getLocales().put("ru", "Описание на русском");
+        company3.getLocales().put("en", "English description");
 
-//            session.getTransaction().commit();
-//        }
+//        transaction.commit();
     }
 }

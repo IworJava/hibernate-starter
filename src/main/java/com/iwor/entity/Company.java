@@ -67,7 +67,7 @@ public class Company implements BaseEntity<Integer> {
 
     public void addUser(User... users) {
         Arrays.stream(users).forEach(user -> {
-                    this.users.put(user. getUsername(), user);
+                    this.users.put(user.getUsername(), user);
                     user.setCompany(this);
         });
     }

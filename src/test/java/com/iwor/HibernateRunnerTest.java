@@ -1,8 +1,11 @@
 package com.iwor;
 
+import com.iwor.entity.Birthday;
 import com.iwor.entity.Chat;
 import com.iwor.entity.Company;
+import com.iwor.entity.Language;
 import com.iwor.entity.Manager;
+import com.iwor.entity.PersonalInfo;
 import com.iwor.entity.Profile;
 import com.iwor.entity.Programmer;
 import com.iwor.entity.Role;
@@ -20,10 +23,24 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.time.LocalDate;
 
 class HibernateRunnerTest {
     private static SessionFactory sessionFactory;
     private Session session;
+
+    @Test
+    void checkHql() {
+        Transaction transaction = session.beginTransaction();
+
+        User user = session.createNamedQuery("findUserByName", User.class)
+                .setParameter("user", "%ann%")
+                .setParameter("company", "apple")
+                .uniqueResult();
+        System.out.println(user);
+
+        transaction.commit();
+    }
 
     @Test
     void checkOrdering() {
@@ -75,7 +92,7 @@ class HibernateRunnerTest {
 
     @Test
     void checkOneToOne() {
-        try (SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
+        try (SessionFactory sessionFactory = HibernateTestUtil.buildSessionFactory();
              Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
 
@@ -112,12 +129,36 @@ class HibernateRunnerTest {
         session.persist(company2);
         session.persist(company3);
 
-        Programmer user1 = Programmer.builder().username("ivan@gmail.com").role(Role.USER).company(company1).build();
-        Programmer user2 = Programmer.builder().username("anna@gmail.com").role(Role.ADMIN).company(company1).build();
-        Manager user3 = Manager.builder().username("petr@gmail.com").role(Role.USER).company(company1).build();
-        session.persist(user1);
-        session.persist(user2);
-        session.persist(user3);
+        PersonalInfo personalInfo1 = PersonalInfo.builder().firstname("Ivan").lastname("Ivanov").birthDate(new Birthday(LocalDate.of(2000, 10, 20))).build();
+        PersonalInfo personalInfo2 = PersonalInfo.builder().firstname("Petr").lastname("Petrov").birthDate(new Birthday(LocalDate.of(1990, 9, 19))).build();
+        PersonalInfo personalInfo3 = PersonalInfo.builder().firstname("Anna").lastname("Volkova").birthDate(new Birthday(LocalDate.of(1980, 8, 18))).build();
+        Programmer programmer1 = Programmer.builder()
+                .username("ivan@gmail.com")
+                .personalInfo(personalInfo1)
+                .role(Role.USER)
+                .info("{\"id\": 1, \"name\": \"Ivan\"}")
+                .company(company1)
+                .language(Language.PYTHON)
+                .build();
+        Manager manager = Manager.builder()
+                .username("petr@gmail.com")
+                .personalInfo(personalInfo2)
+                .role(Role.USER)
+                .info("{\"id\": 2, \"name\": \"Petr\"}")
+                .company(company1)
+                .projectName("Mega Project")
+                .build();
+        Programmer programmer2 = Programmer.builder()
+                .username("anna@gmail.com")
+                .personalInfo(personalInfo3)
+                .role(Role.ADMIN)
+                .info("{\"id\": 3, \"name\": \"Anna\"}")
+                .company(company1)
+                .language(Language.JAVA)
+                .build();
+        session.persist(programmer1);
+        session.persist(manager);
+        session.persist(programmer2);
 
         company3.getLocales().put("ru", "Описание на русском");
         company3.getLocales().put("en", "English description");
