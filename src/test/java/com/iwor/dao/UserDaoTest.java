@@ -1,12 +1,15 @@
 package com.iwor.dao;
 
 import com.iwor.dto.CompanyDto;
+import com.iwor.dto.PaymentFilter;
 import com.iwor.entity.Company;
 import com.iwor.entity.Payment;
 import com.iwor.entity.User;
 import com.iwor.util.HibernateTestUtil;
 import com.iwor.util.TestDataImporter;
+import com.querydsl.core.Tuple;
 import lombok.Cleanup;
+import org.hibernate.Filter;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.AfterAll;
@@ -14,7 +17,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
-import javax.persistence.Tuple;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -112,7 +114,12 @@ class UserDaoTest {
         @Cleanup Session session = sessionFactory.openSession();
         session.beginTransaction();
 
-        Double averagePaymentAmount = userDao.findAveragePaymentAmountByFirstAndLastNames(session, "Bill", "Gates");
+
+        var filter = PaymentFilter.builder()
+                .firstname("Bill")
+                .lastname("Gates")
+                .build();
+        Double averagePaymentAmount = userDao.findAveragePaymentAmountByFirstAndLastNames(session, filter);
         assertThat(averagePaymentAmount).isEqualTo(300.0);
 
         session.getTransaction().commit();
@@ -123,13 +130,15 @@ class UserDaoTest {
         @Cleanup Session session = sessionFactory.openSession();
         session.beginTransaction();
 
-        List<CompanyDto> results = userDao.findCompanyNamesWithAvgUserPaymentsOrderedByCompanyName(session);
+        List<Tuple> results = userDao.findCompanyNamesWithAvgUserPaymentsOrderedByCompanyName(session);
         assertThat(results).hasSize(3);
 
-        List<String> orgNames = results.stream().map(CompanyDto::getName).collect(toList());
+//        List<String> orgNames = results.stream().map(CompanyDto::getName).collect(toList());
+        List<String> orgNames = results.stream().map(o -> o.get(0, String.class)).collect(toList());
         assertThat(orgNames).contains("Apple", "Google", "Microsoft");
 
-        List<Double> orgAvgPayments = results.stream().map(CompanyDto::getAmount).collect(toList());
+//        List<Double> orgAvgPayments = results.stream().map(CompanyDto::getAmount).collect(toList());
+        List<Double> orgAvgPayments = results.stream().map(o -> o.get(1, Double.class)).collect(toList());
         assertThat(orgAvgPayments).contains(410.0, 400.0, 300.0);
 
         session.getTransaction().commit();

@@ -45,7 +45,7 @@ import static com.iwor.util.StringUtils.SPACE;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "username")
-@ToString(exclude = {"company", "profile", "userChats"})
+@ToString(exclude = {"company", "profile", "userChats", "payments"})
 @SuperBuilder
 @Entity
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
