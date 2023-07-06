@@ -1,7 +1,10 @@
 package com.iwor.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
@@ -13,10 +16,9 @@ import java.time.Instant;
 @MappedSuperclass
 public abstract class AuditableEntity<T extends Serializable> implements BaseEntity<T> {
 
-    @Column(nullable = false)
     private Instant createdAt;
 
-    @Column(nullable = false, length = 128)
+    @Column(length = 128)
     private String createdBy;
 
 }

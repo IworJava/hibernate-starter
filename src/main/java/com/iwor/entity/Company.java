@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.SortNatural;
 
 import javax.persistence.CascadeType;
@@ -30,7 +32,7 @@ import java.util.TreeMap;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "name")
-@ToString(exclude = "users")
+@ToString(exclude = {"users"})
 @Builder
 @Entity
 public class Company implements BaseEntity<Integer> {
@@ -53,6 +55,7 @@ public class Company implements BaseEntity<Integer> {
     @MapKey(name = "username")
     private Map<String, User> users = new TreeMap<>();
 
+    @Fetch(FetchMode.SUBSELECT)
     @Builder.Default
     @ElementCollection
     @CollectionTable(name = "company_locale", uniqueConstraints = @UniqueConstraint(columnNames = {"lang", "company_id"}))
