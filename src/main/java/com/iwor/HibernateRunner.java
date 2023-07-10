@@ -4,60 +4,45 @@ import com.iwor.entity.Birthday;
 import com.iwor.entity.Company;
 import com.iwor.entity.Language;
 import com.iwor.entity.Manager;
+import com.iwor.entity.Payment;
 import com.iwor.entity.PersonalInfo;
 import com.iwor.entity.Programmer;
 import com.iwor.entity.Role;
-import com.iwor.entity.User;
 import com.iwor.util.HibernateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.hibernate.annotations.QueryHints;
-import org.hibernate.graph.GraphSemantic;
-import org.hibernate.graph.RootGraph;
 
+import javax.persistence.LockModeType;
 import java.time.LocalDate;
-import java.util.Map;
 
 @Slf4j
 public class HibernateRunner {
     private static final SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
+
     public static void main(String[] args) {
         try (sessionFactory) {
 //            TestDataImporter.importData(sessionFactory);
-            try (Session session = sessionFactory.openSession()) {
-                Transaction transaction = session.beginTransaction();
 
-//                session.enableFetchProfile("withCompany");
-//                session.enableFetchProfile("withCompanyAndPayments");
-//                var user = session.get(User.class, 1L);
+            try (var session = sessionFactory.openSession();
+                 var session1 = sessionFactory.openSession();
+            ) {
+                session.beginTransaction();
+//                session1.beginTransaction();
 
-//                Map<String, Object> properties = Map.of(
-//                        GraphSemantic.LOAD.getJpaHintName(),
-//                        session.getEntityGraph("withCompanyAndChats")
+                var payment = session.find(Payment.class, 1L
+                        , LockModeType.OPTIMISTIC_FORCE_INCREMENT
+//                        , Map.of(READ_ONLY, true)
+                );
+                payment.setAmount(payment.getAmount() + 30);
+
+//                var payment1 = session1.find(Payment.class, 1L
+//                        , LockModeType.PESSIMISTIC_READ
 //                );
-//                var user = session.find(User.class, 1L, properties);
-//                System.out.println(user.getCompany().getName());
-//                System.out.println(user.getUserChats().size());
+//                payment1.setAmount(payment.getAmount() + 10);
 
-                var userGraph = session.createEntityGraph(User.class);
-                userGraph.addAttributeNodes("company", "userChats");
-                userGraph.addSubgraph("userChats")
-                        .addAttributeNodes("chat");
-
-                var users = session.createQuery("SELECT u FROM User u", User.class)
-                        .setHint(
-                                GraphSemantic.FETCH.getJpaHintName(),
-//                                session.getEntityGraph("withCompanyAndChats")
-                                userGraph
-                        )
-                        .list();
-                users.forEach(u -> System.out.println(u.getCompany().getName()));
-                users.forEach(u -> System.out.println(u.getUserChats().size()));
-//                users.forEach(u -> u.getUserChats().forEach(uc -> System.out.println(uc.getChat().getName())));
-
-                transaction.commit();
+                session.getTransaction().commit();
+//                session1.getTransaction().commit();
             }
         }
     }
