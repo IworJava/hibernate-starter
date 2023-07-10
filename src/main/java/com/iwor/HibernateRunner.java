@@ -23,12 +23,13 @@ public class HibernateRunner {
         try (sessionFactory) {
             TestDataImporter.importData(sessionFactory);
 
-            try (
-                    var session = sessionFactory.openSession();
-            ) {
+            try (var session = sessionFactory.openSession()) {
                 session.beginTransaction();
 
                 dbInit(session);
+
+                var programmer = session.get(Programmer.class, 6L);
+                session.delete(programmer);
 
                 session.getTransaction().commit();
             }
