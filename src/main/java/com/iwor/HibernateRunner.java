@@ -4,16 +4,15 @@ import com.iwor.entity.Birthday;
 import com.iwor.entity.Company;
 import com.iwor.entity.Language;
 import com.iwor.entity.Manager;
-import com.iwor.entity.Payment;
 import com.iwor.entity.PersonalInfo;
 import com.iwor.entity.Programmer;
 import com.iwor.entity.Role;
 import com.iwor.util.HibernateUtil;
+import com.iwor.util.TestDataImporter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import javax.persistence.LockModeType;
 import java.time.LocalDate;
 
 @Slf4j
@@ -22,27 +21,16 @@ public class HibernateRunner {
 
     public static void main(String[] args) {
         try (sessionFactory) {
-//            TestDataImporter.importData(sessionFactory);
+            TestDataImporter.importData(sessionFactory);
 
-            try (var session = sessionFactory.openSession();
-                 var session1 = sessionFactory.openSession();
+            try (
+                    var session = sessionFactory.openSession();
             ) {
                 session.beginTransaction();
-//                session1.beginTransaction();
 
-                var payment = session.find(Payment.class, 1L
-                        , LockModeType.OPTIMISTIC_FORCE_INCREMENT
-//                        , Map.of(READ_ONLY, true)
-                );
-                payment.setAmount(payment.getAmount() + 30);
-
-//                var payment1 = session1.find(Payment.class, 1L
-//                        , LockModeType.PESSIMISTIC_READ
-//                );
-//                payment1.setAmount(payment.getAmount() + 10);
+                dbInit(session);
 
                 session.getTransaction().commit();
-//                session1.getTransaction().commit();
             }
         }
     }

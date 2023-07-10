@@ -3,6 +3,7 @@ package com.iwor.entity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.DynamicUpdate;
@@ -20,12 +21,13 @@ import javax.persistence.Version;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @ToString(exclude = "receiver")
 @Builder
 @Entity
 @DynamicUpdate
 //@OptimisticLocking(type = OptimisticLockType.VERSION)
-public class Payment implements BaseEntity<Long> {
+public class Payment extends AuditableEntity<Long> {
 
     @Version
     private Long version;

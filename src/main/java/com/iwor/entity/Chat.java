@@ -33,6 +33,10 @@ public class Chat implements BaseEntity<Long> {
     private String name;
 
     @Builder.Default
+    @Column(nullable = false)
+    private Integer count = 0;
+
+    @Builder.Default
     @OneToMany(mappedBy = "chat")
     private List<UserChat> userChats = new ArrayList<>();
 }

@@ -1,5 +1,6 @@
 package com.iwor.entity;
 
+import com.iwor.listener.UserChatListener;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -7,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -23,6 +25,7 @@ import javax.persistence.UniqueConstraint;
 @Builder
 @Entity
 @Table(name = "users_chat", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "chat_id"}))
+@EntityListeners(UserChatListener.class)
 public class UserChat extends AuditableEntity<Long> {
 
     @Id
@@ -38,13 +41,13 @@ public class UserChat extends AuditableEntity<Long> {
     private Chat chat;
 
     public void setUser(User user) {
-        user.getUserChats().add(this);
         this.user = user;
+        user.getUserChats().add(this);
     }
 
     public void setChat(Chat chat) {
-        chat.getUserChats().add(this);
         this.chat = chat;
+        chat.getUserChats().add(this);
     }
 }
 
