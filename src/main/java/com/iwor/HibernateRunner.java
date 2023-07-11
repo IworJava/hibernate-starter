@@ -7,6 +7,7 @@ import com.iwor.entity.Manager;
 import com.iwor.entity.PersonalInfo;
 import com.iwor.entity.Programmer;
 import com.iwor.entity.Role;
+import com.iwor.interceptor.GlobalInterceptor;
 import com.iwor.util.HibernateUtil;
 import com.iwor.util.TestDataImporter;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,11 @@ public class HibernateRunner {
         try (sessionFactory) {
             TestDataImporter.importData(sessionFactory);
 
-            try (var session = sessionFactory.openSession()) {
+            try (var session = sessionFactory
+                    .withOptions()
+                    .interceptor(new GlobalInterceptor())
+                    .openSession()
+            ) {
                 session.beginTransaction();
 
                 dbInit(session);
