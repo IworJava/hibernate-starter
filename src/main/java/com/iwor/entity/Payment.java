@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.envers.Audited;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -26,7 +27,8 @@ import javax.persistence.Version;
 @Builder
 @Entity
 @DynamicUpdate
-//@OptimisticLocking(type = OptimisticLockType.VERSION)
+//@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+@Audited
 public class Payment extends AuditableEntity<Long> {
 
     @Version

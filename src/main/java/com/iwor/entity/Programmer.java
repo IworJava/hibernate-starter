@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.envers.Audited;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -18,6 +19,7 @@ import javax.persistence.Enumerated;
 @SuperBuilder
 @Entity
 @DiscriminatorValue("p")
+@Audited
 public class Programmer extends User {
 
     @Enumerated(EnumType.STRING)

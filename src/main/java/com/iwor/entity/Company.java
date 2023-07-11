@@ -9,6 +9,7 @@ import lombok.ToString;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.SortNatural;
+import org.hibernate.envers.Audited;
 
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -35,6 +36,7 @@ import java.util.TreeMap;
 @ToString(exclude = {"users"})
 @Builder
 @Entity
+@Audited
 public class Company implements BaseEntity<Integer> {
 
     @Id
@@ -55,6 +57,7 @@ public class Company implements BaseEntity<Integer> {
     @MapKey(name = "username")
     private Map<String, User> users = new TreeMap<>();
 
+    @Audited
     @Fetch(FetchMode.SUBSELECT)
     @Builder.Default
     @ElementCollection

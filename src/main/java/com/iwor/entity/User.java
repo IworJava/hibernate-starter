@@ -13,6 +13,8 @@ import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.FetchProfile;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -78,6 +80,7 @@ import static com.iwor.util.StringUtils.SPACE;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "type", columnDefinition = "bpchar")
 @DiscriminatorValue("u")
+@Audited
 public class User implements BaseEntity<Long> {
 
     @Id
@@ -102,6 +105,7 @@ public class User implements BaseEntity<Long> {
     @JoinColumn(name = "company_id")
     private Company company;
 
+    @NotAudited
     @OneToOne(
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL
@@ -109,6 +113,7 @@ public class User implements BaseEntity<Long> {
     @JoinColumn(name = "profile_id")
     private Profile profile;
 
+    @NotAudited
     @Builder.Default
     @OneToMany(mappedBy = "user")
     private List<UserChat> userChats = new ArrayList<>();
@@ -121,4 +126,3 @@ public class User implements BaseEntity<Long> {
         return getPersonalInfo().getFirstname() + SPACE + getPersonalInfo().getLastname();
     }
 }
-
