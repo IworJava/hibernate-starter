@@ -3,6 +3,7 @@ package com.iwor.entity;
 import com.iwor.listener.AuditDateListener;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.envers.Audited;
 
 import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
@@ -13,6 +14,7 @@ import java.time.Instant;
 @Setter
 @MappedSuperclass
 @EntityListeners(AuditDateListener.class)
+@Audited
 public abstract class AuditableEntity<T extends Serializable> implements BaseEntity<T> {
 
     private Instant createdAt;

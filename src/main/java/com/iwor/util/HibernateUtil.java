@@ -1,6 +1,7 @@
 package com.iwor.util;
 
 import com.iwor.entity.Audit;
+import com.iwor.entity.Revision;
 import com.iwor.interceptor.GlobalInterceptor;
 import com.iwor.listener.AuditTableListener;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
@@ -35,6 +36,7 @@ public class HibernateUtil {
         configuration.setPhysicalNamingStrategy(new CamelCaseToUnderscoresNamingStrategy());
         configuration.registerTypeOverride(new JsonBinaryType());
         configuration.addAnnotatedClass(Audit.class);
+        configuration.addAnnotatedClass(Revision.class);
         configuration.setInterceptor(new GlobalInterceptor());
         return configuration.configure();
     }
