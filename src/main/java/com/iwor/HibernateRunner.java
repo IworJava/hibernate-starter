@@ -33,6 +33,11 @@ public class HibernateRunner {
                 user.getCompany().getName();
                 user.getUserChats().size();
 
+                session.createQuery("SELECT p FROM Payment p WHERE p.receiver.id = :userId")
+                        .setCacheable(true)
+                        .setParameter("userId", 1L)
+                        .getResultList();
+
                 session.getTransaction().commit();
             }
 
@@ -43,6 +48,12 @@ public class HibernateRunner {
                 user.getCompany().getName();
                 user.getUserChats().size();
                 session1.get(UserChat.class, 1L);
+
+                session1.createQuery("SELECT p FROM Payment p WHERE p.receiver.id = :userId")
+                        .setCacheable(true)
+//                        .setCacheRegion("queries")
+                        .setParameter("userId", 1L)
+                        .getResultList();
 
                 session1.getTransaction().commit();
             }
