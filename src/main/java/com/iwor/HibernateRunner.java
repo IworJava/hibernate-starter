@@ -4,21 +4,17 @@ import com.iwor.entity.Birthday;
 import com.iwor.entity.Company;
 import com.iwor.entity.Language;
 import com.iwor.entity.Manager;
-import com.iwor.entity.Payment;
 import com.iwor.entity.PersonalInfo;
 import com.iwor.entity.Programmer;
 import com.iwor.entity.Role;
+import com.iwor.entity.User;
+import com.iwor.entity.UserChat;
 import com.iwor.util.HibernateUtil;
 import com.iwor.util.TestDataImporter;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.ReplicationMode;
 import org.hibernate.SessionFactory;
-import org.hibernate.envers.AuditReaderFactory;
-import org.hibernate.envers.query.AuditEntity;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class HibernateRunner {
@@ -28,32 +24,25 @@ public class HibernateRunner {
         try (sessionFactory) {
 //            dbInit(sessionFactory);
 
+            User user = null;
             try (var session = sessionFactory.openSession()) {
                 session.beginTransaction();
 
-                var payment = session.get(Payment.class, 1L);
-                payment.setAmount(payment.getAmount() + 10);
+                user = session.get(User.class, 1L);
+                var user1 = session.get(User.class, 1L);
+                user.getCompany().getName();
+                user.getUserChats().size();
 
                 session.getTransaction().commit();
-
             }
+
             try (var session1 = sessionFactory.openSession()) {
                 session1.beginTransaction();
 
-                var auditReader = AuditReaderFactory.get(session1);
-                var oldPayment = auditReader.find(Payment.class, 1L, 1L);
-//                var oldPayment = auditReader.find(Payment.class, 1L, new Date(1635000657066L));
-                session1.replicate(oldPayment, ReplicationMode.OVERWRITE);
-
-                List<Object[]> list = auditReader.createQuery()
-                        .forEntitiesAtRevision(Payment.class, 400L)
-                        .add(AuditEntity.property("amount").ge(450))
-                        .add(AuditEntity.property("id").ge(5L))
-                        .addProjection(AuditEntity.property("amount"))
-                        .addProjection(AuditEntity.id())
-                        .getResultList();
-                var collect = list.stream().collect(Collectors.toMap(e -> (Long) e[1], e -> (Integer) e[0]));
-                System.out.println(collect);
+                user = session1.get(User.class, 1L);
+                user.getCompany().getName();
+                user.getUserChats().size();
+                session1.get(UserChat.class, 1L);
 
                 session1.getTransaction().commit();
             }

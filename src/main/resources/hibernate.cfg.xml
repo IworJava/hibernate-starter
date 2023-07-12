@@ -14,6 +14,9 @@
     <property name="hibernate.hbm2ddl.auto">validate</property>
 <!--    <property name="hibernate.hbm2ddl.auto">create</property>-->
     <property name="org.hibernate.envers.do_not_audit_optimistic_locking_field">false</property>
+    <property name="hibernate.cache.use_second_level_cache">true</property>
+    <property name="hibernate.cache.region.factory_class">org.hibernate.cache.jcache.internal.JCacheRegionFactory</property>
+    <property name="hibernate.javax.cache.uri">/ehcache-config.xml</property>
 
     <mapping class="com.iwor.entity.User"/>
     <mapping class="com.iwor.entity.Company"/>

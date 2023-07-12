@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -26,6 +28,7 @@ import javax.persistence.UniqueConstraint;
 @Entity
 @Table(name = "users_chat", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "chat_id"}))
 @EntityListeners(UserChatListener.class)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class UserChat extends AuditableEntity<Long> {
 
     @Id

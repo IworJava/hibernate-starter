@@ -9,6 +9,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.FetchProfile;
 import org.hibernate.annotations.Type;
@@ -81,6 +83,7 @@ import static com.iwor.util.StringUtils.SPACE;
 @DiscriminatorColumn(name = "type", columnDefinition = "bpchar")
 @DiscriminatorValue("u")
 @Audited
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "Users")
 public class User implements BaseEntity<Long> {
 
     @Id
@@ -113,6 +116,7 @@ public class User implements BaseEntity<Long> {
     @JoinColumn(name = "profile_id")
     private Profile profile;
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @NotAudited
     @Builder.Default
     @OneToMany(mappedBy = "user")
