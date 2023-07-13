@@ -1,11 +1,13 @@
 package com.iwor.util;
 
+import com.iwor.HibernateRunner;
 import com.iwor.entity.Audit;
 import com.iwor.entity.Revision;
 import com.iwor.interceptor.GlobalInterceptor;
 import com.iwor.listener.AuditTableListener;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import lombok.experimental.UtilityClass;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy;
 import org.hibernate.cfg.Configuration;
@@ -13,8 +15,18 @@ import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
 import org.hibernate.internal.SessionFactoryImpl;
 
+import java.lang.reflect.Proxy;
+
 @UtilityClass
 public class HibernateUtil {
+
+    public static Session getSessionProxy(SessionFactory sessionFactory) {
+        return (Session) Proxy.newProxyInstance(
+                HibernateRunner.class.getClassLoader(),
+                new Class[]{Session.class},
+                (proxy, method, args1) -> method.invoke(sessionFactory.getCurrentSession(), args1)
+        );
+    }
 
     public static SessionFactory buildSessionFactory() {
         var sessionFactory = buildConfiguration().buildSessionFactory();

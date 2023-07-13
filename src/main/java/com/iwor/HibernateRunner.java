@@ -1,5 +1,6 @@
 package com.iwor;
 
+import com.iwor.dao.PaymentRepository;
 import com.iwor.entity.Birthday;
 import com.iwor.entity.Company;
 import com.iwor.entity.Language;
@@ -7,10 +8,9 @@ import com.iwor.entity.Manager;
 import com.iwor.entity.PersonalInfo;
 import com.iwor.entity.Programmer;
 import com.iwor.entity.Role;
-import com.iwor.entity.User;
-import com.iwor.entity.UserChat;
 import com.iwor.util.HibernateUtil;
 import com.iwor.util.TestDataImporter;
+import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.SessionFactory;
 
@@ -18,46 +18,18 @@ import java.time.LocalDate;
 
 @Slf4j
 public class HibernateRunner {
-    private static final SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
 
     public static void main(String[] args) {
-        try (sessionFactory) {
+        @Cleanup SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
 //            dbInit(sessionFactory);
 
-            User user = null;
-            try (var session = sessionFactory.openSession()) {
-                session.beginTransaction();
+        var session = HibernateUtil.getSessionProxy(sessionFactory);
+        session.beginTransaction();
 
-                user = session.get(User.class, 1L);
-                var user1 = session.get(User.class, 1L);
-                user.getCompany().getName();
-                user.getUserChats().size();
+        var paymentRepository = new PaymentRepository(session);
+        paymentRepository.findById(1L).ifPresent(System.out::println);
 
-                session.createQuery("SELECT p FROM Payment p WHERE p.receiver.id = :userId")
-                        .setCacheable(true)
-                        .setParameter("userId", 1L)
-                        .getResultList();
-
-                session.getTransaction().commit();
-            }
-
-            try (var session1 = sessionFactory.openSession()) {
-                session1.beginTransaction();
-
-                user = session1.get(User.class, 1L);
-                user.getCompany().getName();
-                user.getUserChats().size();
-                session1.get(UserChat.class, 1L);
-
-                session1.createQuery("SELECT p FROM Payment p WHERE p.receiver.id = :userId")
-                        .setCacheable(true)
-//                        .setCacheRegion("queries")
-                        .setParameter("userId", 1L)
-                        .getResultList();
-
-                session1.getTransaction().commit();
-            }
-        }
+        session.getTransaction().commit();
     }
 
     private static void dbInit(SessionFactory sessionFactory) {
