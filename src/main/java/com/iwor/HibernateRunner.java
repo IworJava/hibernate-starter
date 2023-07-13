@@ -1,6 +1,8 @@
 package com.iwor;
 
-import com.iwor.dao.PaymentRepository;
+import com.iwor.dao.CompanyRepository;
+import com.iwor.dao.UserRepository;
+import com.iwor.dto.UserCreateDto;
 import com.iwor.entity.Birthday;
 import com.iwor.entity.Company;
 import com.iwor.entity.Language;
@@ -8,6 +10,10 @@ import com.iwor.entity.Manager;
 import com.iwor.entity.PersonalInfo;
 import com.iwor.entity.Programmer;
 import com.iwor.entity.Role;
+import com.iwor.mapper.CompanyReadMapper;
+import com.iwor.mapper.UserCreateMapper;
+import com.iwor.mapper.UserReadMapper;
+import com.iwor.service.UserService;
 import com.iwor.util.HibernateUtil;
 import com.iwor.util.TestDataImporter;
 import lombok.Cleanup;
@@ -15,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.SessionFactory;
 
 import java.time.LocalDate;
+import java.time.Month;
 
 @Slf4j
 public class HibernateRunner {
@@ -26,8 +33,26 @@ public class HibernateRunner {
         var session = HibernateUtil.getSessionProxy(sessionFactory);
         session.beginTransaction();
 
-        var paymentRepository = new PaymentRepository(session);
-        paymentRepository.findById(1L).ifPresent(System.out::println);
+
+        var companyRepository = new CompanyRepository(session);
+        var companyReadMapper = new CompanyReadMapper();
+        var userReadMapper = new UserReadMapper(companyReadMapper);
+        var userCreateMapper = new UserCreateMapper(companyRepository);
+        var userRepository = new UserRepository(session);
+        var userService = new UserService(userRepository, userReadMapper, userCreateMapper);
+
+        userService.findById(1L).ifPresent(System.out::println);
+        var newUserId = userService.create(new UserCreateDto(
+                "ivan@ivan.com",
+                PersonalInfo.builder()
+                        .firstname("Ivan")
+                        .lastname("Ivanov")
+                        .birthDate(new Birthday(LocalDate.of(1999, Month.APRIL, 5)))
+                        .build(),
+                null,
+                Role.USER,
+                3));
+        System.out.println("NEW USER ID: " + newUserId);
 
         session.getTransaction().commit();
     }

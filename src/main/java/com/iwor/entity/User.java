@@ -46,14 +46,16 @@ import java.util.List;
 import static com.iwor.util.StringUtils.SPACE;
 
 @NamedEntityGraph(
+        name = "withCompany",
+        attributeNodes = @NamedAttributeNode(value = "company")
+)
+@NamedEntityGraph(
         name = "withCompanyAndChats",
         attributeNodes = {
                 @NamedAttributeNode("company"),
                 @NamedAttributeNode(value = "userChats", subgraph = "chats")
         },
-        subgraphs = {
-                @NamedSubgraph(name = "chats", attributeNodes = @NamedAttributeNode("chat"))
-        }
+        subgraphs = @NamedSubgraph(name = "chats", attributeNodes = @NamedAttributeNode("chat"))
 )
 @FetchProfile(name = "withCompany", fetchOverrides = {
         @FetchProfile.FetchOverride(

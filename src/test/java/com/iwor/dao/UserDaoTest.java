@@ -1,15 +1,12 @@
 package com.iwor.dao;
 
-import com.iwor.dto.CompanyDto;
 import com.iwor.dto.PaymentFilter;
-import com.iwor.entity.Company;
 import com.iwor.entity.Payment;
 import com.iwor.entity.User;
 import com.iwor.util.HibernateTestUtil;
 import com.iwor.util.TestDataImporter;
 import com.querydsl.core.Tuple;
 import lombok.Cleanup;
-import org.hibernate.Filter;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.AfterAll;
