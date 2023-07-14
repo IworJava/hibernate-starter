@@ -7,9 +7,12 @@ import com.iwor.entity.User;
 import com.iwor.mapper.Mapper;
 import com.iwor.mapper.UserCreateMapper;
 import com.iwor.mapper.UserReadMapper;
+import com.iwor.validation.UpdateCheck;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.graph.GraphSemantic;
 
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validation;
 import java.util.Map;
 import java.util.Optional;
 
@@ -21,9 +24,14 @@ public class UserService {
     private final UserCreateMapper userCreateMapper;
 
     public Long create(UserCreateDto dto) {
-        // todo validation
-        // better validate dto than entity
-
+        try (var validatorFactory = Validation.buildDefaultValidatorFactory()) {
+            var validator = validatorFactory.getValidator();
+//            var validationResult = validator.validate(dto);
+            var validationResult = validator.validate(dto, UpdateCheck.class);
+            if (!validationResult.isEmpty()) {
+                throw new ConstraintViolationException(validationResult);
+            }
+        }
         var userEntity = userCreateMapper.mapFrom(dto);
         return userRepository.save(userEntity).getId();
     }

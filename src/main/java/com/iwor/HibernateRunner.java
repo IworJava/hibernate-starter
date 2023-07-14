@@ -26,7 +26,6 @@ import org.hibernate.SessionFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
-import java.time.Month;
 
 @Slf4j
 public class HibernateRunner {
@@ -58,15 +57,17 @@ public class HibernateRunner {
                 .newInstance(userRepository, userReadMapper, userCreateMapper);
 
         userService.findById(1L).ifPresent(System.out::println);
-        var newUserId = userService.create(new UserCreateDto(
-                "ivan1@ivan.com",
+            var newUserId = userService.create(new UserCreateDto(
+//                null,
+                "ivan2@ivan.com",
                 PersonalInfo.builder()
                         .firstname("Ivan")
                         .lastname("Ivanov")
-                        .birthDate(new Birthday(LocalDate.of(1988, Month.APRIL, 5)))
+//                        .birthDate(new Birthday(LocalDate.of(1988, Month.APRIL, 5)))
                         .build(),
                 null,
-                Role.USER,
+//                Role.USER,
+                null,
                 1));
         System.out.println("NEW USER ID: " + newUserId);
 
