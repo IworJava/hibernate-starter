@@ -10,6 +10,7 @@ import com.iwor.entity.Manager;
 import com.iwor.entity.PersonalInfo;
 import com.iwor.entity.Programmer;
 import com.iwor.entity.Role;
+import com.iwor.interceptor.TransactionInterceptor;
 import com.iwor.mapper.CompanyReadMapper;
 import com.iwor.mapper.UserCreateMapper;
 import com.iwor.mapper.UserReadMapper;
@@ -18,15 +19,19 @@ import com.iwor.util.HibernateUtil;
 import com.iwor.util.TestDataImporter;
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
+import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.implementation.MethodDelegation;
+import net.bytebuddy.matcher.ElementMatchers;
 import org.hibernate.SessionFactory;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.time.Month;
 
 @Slf4j
 public class HibernateRunner {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         @Cleanup SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
 //            dbInit(sessionFactory);
 
@@ -39,19 +44,30 @@ public class HibernateRunner {
         var userReadMapper = new UserReadMapper(companyReadMapper);
         var userCreateMapper = new UserCreateMapper(companyRepository);
         var userRepository = new UserRepository(session);
-        var userService = new UserService(userRepository, userReadMapper, userCreateMapper);
+//        var userService = new UserService(userRepository, userReadMapper, userCreateMapper);
+        var transactionInterceptor = new TransactionInterceptor(sessionFactory);
+
+        UserService userService = new ByteBuddy()
+                .subclass(UserService.class)
+                .method(ElementMatchers.any())
+                .intercept(MethodDelegation.to(transactionInterceptor))
+                .make()
+                .load(UserService.class.getClassLoader())
+                .getLoaded()
+                .getDeclaredConstructor(UserRepository.class, UserReadMapper.class, UserCreateMapper.class)
+                .newInstance(userRepository, userReadMapper, userCreateMapper);
 
         userService.findById(1L).ifPresent(System.out::println);
         var newUserId = userService.create(new UserCreateDto(
-                "ivan@ivan.com",
+                "ivan1@ivan.com",
                 PersonalInfo.builder()
                         .firstname("Ivan")
                         .lastname("Ivanov")
-                        .birthDate(new Birthday(LocalDate.of(1999, Month.APRIL, 5)))
+                        .birthDate(new Birthday(LocalDate.of(1988, Month.APRIL, 5)))
                         .build(),
                 null,
                 Role.USER,
-                3));
+                1));
         System.out.println("NEW USER ID: " + newUserId);
 
         session.getTransaction().commit();
